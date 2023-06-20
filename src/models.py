@@ -38,9 +38,8 @@ class Appointment(db.Model):
     def __init__(self, doctor, patient_name, start_time, length_minutes):
         self.doctor_id = doctor.id
         self.patient_name = patient_name
-        self.start_time = start_time
         self.length_minutes = length_minutes
-        self.end_time = start_time + timedelta(minutes=length_minutes)
+        self.update_start_time(start_time)
 
     def update_start_time(self, start_time):
         self.start_time = start_time
@@ -57,7 +56,7 @@ class Appointment(db.Model):
         doctor = Doctor.query.filter_by(id=self.doctor_id).first()
         return any(doctor.list_appointments(self.start_time, self.end_time))
 
-    def within_working_hours(self):
+    def is_within_working_hours(self):
         day_of_week = self.start_time.isoweekday()
         doctor_working_hours = WorkingHours.query.filter(WorkingHours.doctor_id == self.doctor_id, WorkingHours.day_of_week == day_of_week)
         if not any(doctor_working_hours):
